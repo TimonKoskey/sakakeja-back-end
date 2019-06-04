@@ -19,6 +19,15 @@ class LocationSerializer (ModelSerializer):
 		model = location
 		fields = '__all__'
 
+		def create (self, validated_data):
+			county=validated_data['county']
+			city_or_town=validated_data['city_or_town']
+			estate_or_area_name=validated_data['estate_or_area_name']
+
+			location_obj=location(county=county, city_or_town=city_or_town, estate_or_area_name=estate_or_area_name)
+			location_obj.save()
+			return location_obj
+
 class PropertyListSerializer(ModelSerializer):
 	location = SerializerMethodField()
 	pictures = SerializerMethodField()
@@ -31,6 +40,7 @@ class PropertyListSerializer(ModelSerializer):
 			'location',
 			'rent_or_sale',
 			'amount_to_be_paid',
+			'property_name',
 			'date_of_upload',
 			'pictures'
 		]
@@ -65,6 +75,7 @@ class PropertyDetailSerializer (ModelSerializer):
 			'amount_to_be_paid',
 			'date_of_upload',
 			'pictures',
+			'property_name',
     		'property_type',
     		'rent_or_sale',
 		    'number_of_bedrooms',
@@ -91,3 +102,36 @@ class UploaderDetailsSerializer(ModelSerializer):
 	class Meta:
 		model = uploader_details
 		fields= '__all__'
+
+class CreateNewPropertySerializer(ModelSerializer):
+
+	class Meta:
+		model=property_class
+		fields=[
+			'title',
+			'amount_to_be_paid',
+			'property_type',
+			'rent_or_sale',
+			'property_name',
+		    'number_of_bedrooms',
+		    'number_of_bathrooms',
+		    'description',
+		]
+
+	def create (self, validated_data):
+		title=validated_data['title']
+		amount_to_be_paid=validated_data['amount_to_be_paid']
+		property_type=validated_data['property_type']
+		rent_or_sale=validated_data['rent_or_sale']
+		property_name=validated_data['property_name']
+		number_of_bedrooms=validated_data['number_of_bedrooms']
+		number_of_bathrooms=validated_data['number_of_bathrooms']
+		description=validated_data['description']
+
+		property_obj = property_class(title=title, amount_to_be_paid=amount_to_be_paid, property_type=property_type,
+			rent_or_sale=rent_or_sale, property_name=property_name, number_of_bedrooms=number_of_bedrooms,
+			number_of_bathrooms=number_of_bathrooms,description=description)
+
+		property_obj.save()
+
+		return property_obj

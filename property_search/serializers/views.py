@@ -26,7 +26,8 @@ from property_search.models import (
 from .serializers import (
     PropertyListSerializer,
     LocationSerializer,
-    PropertyDetailSerializer
+    PropertyDetailSerializer,
+    CreateNewPropertySerializer
 )
 
 import json
@@ -112,3 +113,36 @@ class LocationListAPIView (ListAPIView):
 class PropertyDetailsAPIView(RetrieveAPIView):
     queryset = property_class
     serializer_class = PropertyDetailSerializer
+
+class CreateNewPropertyAPIView (APIView):
+
+    def post(self, request, *args, **kwargs):
+        post_data=request.data
+        property_data_to_save = {
+            'title': post_data['title'],
+            'amount_to_be_paid': post_data['amount_to_be_paid'],
+            'property_type': post_data['property_type'],
+            'rent_or_sale': post_data['rent_or_sale'],
+            'property_name': post_data['property_name'],
+            'number_of_bedrooms': post_data['number_of_bedrooms'],
+            'number_of_bathrooms': post_data['number_of_bathrooms'],
+            'description': post_data['description']
+        }
+
+        location_data_to_save= {
+            'county': post_data['location']['county'],
+            'city_or_town': post_data['location']['city_or_town'],
+            'estate_or_area_name': post_data['location']['estate_or_area_name']
+        }
+
+        property_serializer=CreateNewPropertySerializer(data=property_data_to_save)
+
+        if property_serializer.is_valid():
+            property_obj = property_serializer.create(property_serializer.validated_data)
+            location_serializer = LocationSerializer (data=location_data_to_save)
+            if location_serializer.is_valid():
+                location_obj=location_serializer.create(location_serializer.validated_data)
+                property_obj.location=location_obj
+            return Response(CreateNewPropertySerializer(property_obj).data, status=status.HTTP_201_CREATED)
+        return Response(CreateNewPropertySerializer(property_obj).errors, status=status.HTTP_400_BAD_REQUEST)
+            # print(data_to_save)

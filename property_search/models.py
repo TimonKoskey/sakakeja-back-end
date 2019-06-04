@@ -24,8 +24,9 @@ class DetailsOfUploader (models.Model):
     company_name = models.CharField (max_length = 50,null=True, blank = True)
 
 class Property (models.Model):
-    title = models.CharField (max_length = 100,null=True)
-    property_type = models.CharField (max_length = 50,null=True)
+    property_name = models.CharField (max_length = 50,null=True, blank = True)
+    title = models.CharField (max_length = 100,null=True, blank = True)
+    property_type = models.CharField (max_length = 50,null=True, blank = True)
     rent_or_sale = models.CharField (max_length = 50,null=True, blank = True)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL,null = True, blank = True)
     number_of_bedrooms = models.IntegerField (null=True, blank = True)
