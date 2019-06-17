@@ -17,17 +17,22 @@ from rest_framework.permissions import(
 	)
 
 from property_search.models import (
-    location,
-    uploader_details,
     property_class,
     property_picture
 )
 
+from user_accounts.models import (
+    location,
+    uploader_details,
+    )
+
 from .serializers import (
     PropertyListSerializer,
-    LocationSerializer,
     PropertyDetailSerializer,
-    CreateNewPropertySerializer
+)
+
+from user_accounts.serializers.serializers import (
+    LocationSerializer,
 )
 
 import json
@@ -46,6 +51,9 @@ class PrimarySearchResultsAPIView (ListAPIView):
         number_of_bedrooms = request_data['number_of_bedrooms']
         max_amount = request_data['max_amount']
 
+        if rent_or_sale != 'null' and rent_or_sale != None and rent_or_sale != '':
+            property_list.filter(property_type=rent_or_sale)
+
         if property_type != 'null' and property_type != None and property_type != '':
             property_list.filter(property_type=property_type)
 
@@ -58,19 +66,22 @@ class PrimarySearchResultsAPIView (ListAPIView):
             city_or_town = (Location_data['city_or_town'])
             estate_or_area_name = (Location_data['estate_or_area_name'])
 
-            if ((city_or_town != 'null' and city_or_town != None and city_or_town != '') and (estate_or_area_name == 'null' or estate_or_area_name == None or estate_or_area_name == '')):
-                location_list = location_list.filter(city_or_town__icontains=city_or_town)
-
-            if ((city_or_town == 'null' or city_or_town == None or city_or_town == '') and (estate_or_area_name != 'null' and estate_or_area_name != None and estate_or_area_name != '')):
-                location_list = location_list.filter(estate_or_area_name__icontains=estate_or_area_name)
-
-            if ((city_or_town != 'null' and city_or_town != None and city_or_town != '') and (estate_or_area_name != 'null' and estate_or_area_name != None and estate_or_area_name != '')):
+            if((city_or_town != 'null' and city_or_town != None and city_or_town != '') and (estate_or_area_name != 'null' and estate_or_area_name != None and estate_or_area_name != '')):
                 location_list = location_list.filter(city_or_town__icontains=city_or_town)
                 loc_list_1 = list(location_list)
                 if location_list:
                     location_list = location_list.filter(estate_or_area_name__icontains=estate_or_area_name)
                     loc_list_2 = list(location_list)
                     location_list = loc_list_2.extend(loc_list_1)
+
+            elif((city_or_town != 'null' and city_or_town != None and city_or_town != '') and (estate_or_area_name == 'null' or estate_or_area_name == None or estate_or_area_name == '')):
+                location_list = location_list.filter(city_or_town__icontains=city_or_town)
+
+            elif((city_or_town == 'null' or city_or_town == None or city_or_town == '') and (estate_or_area_name != 'null' and estate_or_area_name != None and estate_or_area_name != '')):
+                location_list = location_list.filter(estate_or_area_name__icontains=estate_or_area_name)
+
+            else:
+                location_list=None
 
 
             if location_list:
@@ -113,36 +124,3 @@ class LocationListAPIView (ListAPIView):
 class PropertyDetailsAPIView(RetrieveAPIView):
     queryset = property_class
     serializer_class = PropertyDetailSerializer
-
-class CreateNewPropertyAPIView (APIView):
-
-    def post(self, request, *args, **kwargs):
-        post_data=request.data
-        property_data_to_save = {
-            'title': post_data['title'],
-            'amount_to_be_paid': post_data['amount_to_be_paid'],
-            'property_type': post_data['property_type'],
-            'rent_or_sale': post_data['rent_or_sale'],
-            'property_name': post_data['property_name'],
-            'number_of_bedrooms': post_data['number_of_bedrooms'],
-            'number_of_bathrooms': post_data['number_of_bathrooms'],
-            'description': post_data['description']
-        }
-
-        location_data_to_save= {
-            'county': post_data['location']['county'],
-            'city_or_town': post_data['location']['city_or_town'],
-            'estate_or_area_name': post_data['location']['estate_or_area_name']
-        }
-
-        property_serializer=CreateNewPropertySerializer(data=property_data_to_save)
-
-        if property_serializer.is_valid():
-            property_obj = property_serializer.create(property_serializer.validated_data)
-            location_serializer = LocationSerializer (data=location_data_to_save)
-            if location_serializer.is_valid():
-                location_obj=location_serializer.create(location_serializer.validated_data)
-                property_obj.location=location_obj
-            return Response(CreateNewPropertySerializer(property_obj).data, status=status.HTTP_201_CREATED)
-        return Response(CreateNewPropertySerializer(property_obj).errors, status=status.HTTP_400_BAD_REQUEST)
-            # print(data_to_save)

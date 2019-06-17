@@ -1,13 +1,8 @@
 from django.contrib import admin
 from .models import (
-    location,
-    uploader_details,
     property_class,
     property_picture
 )
-
-admin.site.register(location)
-admin.site.register(uploader_details)
 
 class PhotosInline (admin.TabularInline):
     model = property_picture

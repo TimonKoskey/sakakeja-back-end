@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('property/serializers/',include('property_search.serializers.urls')),
+    path('accounts/serializers/',include('user_accounts.serializers.urls')),
 ]
 
 if settings.DEBUG:
