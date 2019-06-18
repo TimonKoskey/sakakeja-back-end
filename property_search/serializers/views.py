@@ -39,10 +39,8 @@ import json
 
 class PrimarySearchResultsAPIView (ListAPIView):
     serializer_class = PropertyListSerializer
-	# property_type, number_of_bedrooms, size, location, max_amount
 
     def get_queryset(self, *args, **kwargs):
-        # property_list_queryset = []
         property_list = property_class.objects.all()
         request_data = self.request.GET
         Location_data = request_data['location']
@@ -52,13 +50,13 @@ class PrimarySearchResultsAPIView (ListAPIView):
         max_amount = request_data['max_amount']
 
         if rent_or_sale != 'null' and rent_or_sale != None and rent_or_sale != '':
-            property_list.filter(property_type=rent_or_sale)
+            property_list=property_list.filter(rent_or_sale=rent_or_sale)
 
         if property_type != 'null' and property_type != None and property_type != '':
-            property_list.filter(property_type=property_type)
+            property_list=property_list.filter(property_type=property_type)
 
         if number_of_bedrooms != 'null' and number_of_bedrooms != None and number_of_bedrooms != '':
-            property_list.filter(number_of_bedrooms=number_of_bedrooms)
+            property_list=property_list.filter(number_of_bedrooms=number_of_bedrooms)
 
         if Location_data != 'null' and Location_data != None and Location_data!= '':
             location_list = location.objects.all()
@@ -67,6 +65,7 @@ class PrimarySearchResultsAPIView (ListAPIView):
             estate_or_area_name = (Location_data['estate_or_area_name'])
 
             if((city_or_town != 'null' and city_or_town != None and city_or_town != '') and (estate_or_area_name != 'null' and estate_or_area_name != None and estate_or_area_name != '')):
+                print('you chose both city and area name')
                 location_list = location_list.filter(city_or_town__icontains=city_or_town)
                 loc_list_1 = list(location_list)
                 if location_list:
@@ -76,9 +75,11 @@ class PrimarySearchResultsAPIView (ListAPIView):
 
             elif((city_or_town != 'null' and city_or_town != None and city_or_town != '') and (estate_or_area_name == 'null' or estate_or_area_name == None or estate_or_area_name == '')):
                 location_list = location_list.filter(city_or_town__icontains=city_or_town)
+                print('you chose city or town only')
 
             elif((city_or_town == 'null' or city_or_town == None or city_or_town == '') and (estate_or_area_name != 'null' and estate_or_area_name != None and estate_or_area_name != '')):
                 location_list = location_list.filter(estate_or_area_name__icontains=estate_or_area_name)
+                print('you chose area or estate only')
 
             else:
                 location_list=None
