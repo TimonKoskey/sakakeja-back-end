@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from datetime import datetime
 from rest_framework_jwt.settings import api_settings
 from django.core.mail import send_mail
+from rest_framework.parsers import MultiPartParser
+import json
 
 from rest_framework.generics import (
 	CreateAPIView,
@@ -104,27 +106,38 @@ class SignUpUsers(ObtainJSONWebToken):
 		return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateNewPropertyAPIView (APIView):
+    parser_class = (MultiPartParser)
 
     def post(self, request, *args, **kwargs):
         post_data=request.data
-        print(post_data)
+        uploader = post_data['uploader']
+        uploader = json.loads(uploader)
+        image_count=int(post_data['image_count'])
+
+        # for image_c in range(image_count):
+        #     property_obj=property_class.objects.get(property_type='Apartment')
+        #     image = post_data[('image'+str(image_c))]
+        #     picture_obj = property_picture(property=property_obj,picture=image)
+        #     picture_obj.save()
+
+        property_details = post_data['property_details']
+        property_details = json.loads(property_details)
+
         property_data_to_save = {
-            'title': post_data['title'],
-            'amount_to_be_paid': post_data['amount_to_be_paid'],
-            'property_type': post_data['property_type'],
-            'rent_or_sale': post_data['rent_or_sale'],
-            'property_name': post_data['property_name'],
-            'number_of_bedrooms': post_data['number_of_bedrooms'],
-            'number_of_bathrooms': post_data['number_of_bathrooms'],
-            'description': post_data['description']
+            'title': property_details['title'],
+            'amount_to_be_paid': property_details['amount_to_be_paid'],
+            'property_type': property_details['property_type'],
+            'rent_or_sale': property_details['rent_or_sale'],
+            'property_name': property_details['property_name'],
+            'number_of_bedrooms': property_details['number_of_bedrooms'],
+            'number_of_bathrooms': property_details['number_of_bathrooms'],
+            'description': property_details['description']
         }
 
-        uploader_user=post_data['uploader_data']
-
         location_data_to_save= {
-            'county': post_data['location']['county'],
-            'city_or_town': post_data['location']['city_or_town'],
-            'estate_or_area_name': post_data['location']['estate_or_area_name']
+            'county': property_details['location']['county'],
+            'city_or_town': property_details['location']['city_or_town'],
+            'estate_or_area_name': property_details['location']['estate_or_area_name']
         }
 
         property_serializer=CreateNewPropertySerializer(data=property_data_to_save)
@@ -135,13 +148,13 @@ class CreateNewPropertyAPIView (APIView):
             if location_serializer.is_valid():
                 location_obj=location_serializer.create(location_serializer.validated_data)
                 property_obj.location=location_obj
-                user_obj = uploader_details.objects.get(id=uploader_user['id'])
+                user_obj = uploader_details.objects.get(id=uploader['id'])
                 property_obj.uploader=user_obj
                 property_obj.save()
-                property_pictures=post_data['property_pictures']
-                for picture in property_pictures:
-                    picture_obj = property_picture(property=property_obj,picture=picture)
-                    picture_obj.save()
+                for image_c in range(image_count):
+                    image = post_data[('image'+str(image_c))]
+                    if image:
+                        picture_obj = property_picture(property=property_obj,picture=image)
+                        picture_obj.save()
             return Response(CreateNewPropertySerializer(property_obj).data, status=status.HTTP_201_CREATED)
         return Response(CreateNewPropertySerializer(property_obj).errors, status=status.HTTP_400_BAD_REQUEST)
-            # print(data_to_save)
