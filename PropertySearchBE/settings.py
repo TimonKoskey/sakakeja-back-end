@@ -25,7 +25,7 @@ SECRET_KEY = '9%8x+#y#)amqd(za_#v-ibrs^x#z_p1hx4g(($4-i+yyto(79c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['165.22.116.96']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'corsheaders',
     'property_search',
     'user_accounts'
