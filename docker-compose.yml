@@ -4,11 +4,29 @@ services:
   db:
     image: postgres
   web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    build: ./sakakeja-back-end
+    command: gunicorn PropertySearchBE.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - .:/code
+      - ./sakakeja-back-end:/SakaBackend
+      - static_volume:/SakaBackend/static
+      - media_volume:/SakaBackend/media
+    environment:
+      - DEBUG=1
     ports:
       - "8000:8000"
     depends_on:
       - db
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - web
+    volumes:
+      - static_volume:/SakaBackend/static
+      - media_volume:/SakaBackend/media
+volumes:
+  postgres_data:
+  static_volume:
+  sakakeja-back-end:
+  media_volume:

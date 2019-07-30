@@ -1,0 +1,12 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/SakaBackend/
+ExecStart=/SakaBackend/env/bin/gunicorn --access-logfile - --workers 3 --bind unix:/SakakejaBackend.sock PropertySearchBE.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
