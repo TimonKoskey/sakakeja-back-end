@@ -12,7 +12,7 @@ services:
       - ./sakakeja-back-end:/SakaBackend
     environment:
       - DJANGO_SETTINGS=production
-      - DJANGO_SECRET_KEY=9%8x+#y#)amqd(za_#v-ibrs^x#z_p1hx4g(($4-i+yyto(79c
+      - DJANGO_SECRET_KEY='9%8x+#y#)amqd(za_#v-ibrs^x#z_p1hx4g(($4-i+yyto(79c'
     ports:
       - "8000:8000"
     depends_on:
