@@ -7,7 +7,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
   web:
     build: ./sakakeja-back-end
-    command: ["uwsgi", "--http", ":8080", "--ini", "./uwsgi/uwsgi.ini"]
+    command: ["uwsgi", "--http", ":8000", "--ini", "./uwsgi/uwsgi.ini"]
     volumes:
       - ./sakakeja-back-end:/SakaBackend
     environment:
