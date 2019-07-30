@@ -7,11 +7,12 @@ services:
       - postgres_data:/var/lib/postgresql/data/
   web:
     build: ./sakakeja-back-end
-    command: python manage.py runserver 0.0.0.0:8000
+    command: ["uwsgi", "--http", ":8080", "--ini", "./uwsgi/uwsgi.ini"]
     volumes:
       - ./sakakeja-back-end:/SakaBackend
     environment:
-      - DEBUG=1
+      - DJANGO_SETTINGS=production
+      - DJANGO_SECRET_KEY=9%8x+#y#)amqd(za_#v-ibrs^x#z_p1hx4g(($4-i+yyto(79c
     ports:
       - "8000:8000"
     depends_on:
